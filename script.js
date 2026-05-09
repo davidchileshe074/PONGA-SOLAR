@@ -1,3 +1,14 @@
+// Preloader
+window.addEventListener('load', () => {
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        preloader.classList.add('fade-out');
+        setTimeout(() => {
+            preloader.style.display = 'none';
+        }, 500);
+    }
+});
+
 // Header Scroll Effect
 const header = document.getElementById('header');
 window.addEventListener('scroll', () => {
