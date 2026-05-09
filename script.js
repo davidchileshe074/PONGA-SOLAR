@@ -1,165 +1,166 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Loader - Ensuring it disappears even if 'load' event is delayed
-    const loader = document.getElementById('loader');
-    const hideLoader = () => {
-        if (!loader) return;
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.display = 'none';
-        }, 500);
-    };
-
-    window.addEventListener('load', hideLoader);
-    // Backup: Hide loader after 3 seconds anyway
-    setTimeout(hideLoader, 3000);
-
-    // 2. Sticky Header
-    const header = document.getElementById('header');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 100) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
-
-    // 3. Mobile Menu Toggle
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const navLinks = document.querySelector('.nav-links');
-    
-    if (mobileMenuBtn && navLinks) {
-        mobileMenuBtn.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            const icon = mobileMenuBtn.querySelector('.material-icons');
-            if (icon) icon.innerText = navLinks.classList.contains('active') ? 'close' : 'menu';
-            document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : 'auto';
-        });
+// Header Scroll Effect
+const header = document.getElementById('header');
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
     }
+});
 
-    // 4. Product Filtering
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const productCards = document.querySelectorAll('.product-card');
+// Mobile Menu Toggle
+const mobileToggle = document.getElementById('mobileToggle');
+const navLinks = document.querySelector('.nav-links');
 
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const filter = btn.getAttribute('data-filter');
-
-            productCards.forEach(card => {
-                if (filter === 'all' || card.getAttribute('data-category') === filter) {
-                    card.style.display = 'block';
-                    setTimeout(() => card.style.opacity = '1', 10);
-                } else {
-                    card.style.display = 'none';
-                    card.style.opacity = '0';
-                }
-            });
-        });
+if (mobileToggle) {
+    mobileToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        const icon = mobileToggle.querySelector('.material-icons');
+        icon.textContent = navLinks.classList.contains('active') ? 'close' : 'menu';
     });
+}
 
-    // 5. Intersection Observer for Animations - FIXED CLASS NAME
-    const observerOptions = {
-        threshold: 0.1
-    };
+// Active Link Highlighting
+const sections = document.querySelectorAll('section');
+const navItems = document.querySelectorAll('.nav-links a');
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate-active');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.animate-up').forEach(el => {
-        observer.observe(el);
-    });
-
-    // 6. Simple Quote Form Simulation
-    const quoteForm = document.getElementById('quoteForm');
-    if (quoteForm) {
-        quoteForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const btn = quoteForm.querySelector('button');
-            const originalText = btn.innerText;
-            btn.innerText = 'Sending...';
-            btn.disabled = true;
-
-            setTimeout(() => {
-                alert('Thank you for your inquiry! One of our solar experts will contact you shortly.');
-                quoteForm.reset();
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }, 1500);
-        });
-    }
-
-    // 7. Calculators
-    window.runCalculator = function() {
-        const depth = document.getElementById('depth').value;
-        const flow = document.getElementById('flow').value;
-        const resultDiv = document.getElementById('calc-result');
-
-        if (depth && flow) {
-            const hp = (parseFloat(depth) / 40) + (parseFloat(flow) / 2000);
-            resultDiv.innerText = `Recommended: ${hp.toFixed(1)} HP Pump`;
-        } else {
-            resultDiv.innerText = "Please fill all fields";
+window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= (sectionTop - 200)) {
+            current = section.getAttribute('id');
         }
-    };
-
-    window.estimateTank = function() {
-        const people = document.getElementById('people').value;
-        const resultDiv = document.getElementById('tank-result');
-
-        if (people) {
-            const size = parseInt(people) * 50 * 2;
-            resultDiv.innerText = `Recommended: ${size}L Tank`;
-        } else {
-            resultDiv.innerText = "Enter number of people";
-        }
-    };
-
-    // 8. Smooth Scroll
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            if (this.parentElement.classList.contains('dropdown')) return;
-            
-            const targetId = this.getAttribute('href');
-            if (targetId === '#') return;
-            
-            const target = document.querySelector(targetId);
-            if (target) {
-                e.preventDefault();
-                target.scrollIntoView({ behavior: 'smooth' });
-                
-                // Close mobile menu
-                if (navLinks) {
-                    navLinks.classList.remove('active');
-                    const icon = mobileMenuBtn.querySelector('.material-icons');
-                    if (icon) icon.innerText = 'menu';
-                    document.body.style.overflow = 'auto';
-                }
-            }
-        });
     });
 
-    // 9. Mobile Dropdown Toggle
-    const dropdowns = document.querySelectorAll('.dropdown');
-    dropdowns.forEach(dropdown => {
-        const link = dropdown.querySelector('a');
-        link.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768) {
-                e.preventDefault();
-                const content = dropdown.querySelector('.dropdown-content');
-                const isVisible = window.getComputedStyle(content).display === 'block';
-                content.style.display = isVisible ? 'none' : 'block';
-                
-                const icon = link.querySelector('.material-icons');
-                if (icon) icon.innerText = isVisible ? 'expand_more' : 'expand_less';
-            }
-        });
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href').slice(1) === current) {
+            item.classList.add('active');
+        }
     });
 });
+
+// Close mobile menu when a link is clicked
+const navLinksList = document.querySelector('.nav-links');
+const mobileToggleBtn = document.getElementById('mobileToggle');
+const navLinksAnchors = document.querySelectorAll('.nav-links a');
+
+navLinksAnchors.forEach(anchor => {
+    anchor.addEventListener('click', () => {
+        if (navLinksList.classList.contains('active')) {
+            navLinksList.classList.remove('active');
+            const icon = mobileToggleBtn.querySelector('.material-icons');
+            if (icon) icon.textContent = 'menu';
+        }
+    });
+});
+
+// Solar Pump Calculator
+function calculatePump() {
+    const depth = parseFloat(document.getElementById('depth').value);
+    const flow = parseFloat(document.getElementById('flow').value);
+    const resultDiv = document.getElementById('pumpResult');
+
+    if (isNaN(depth) || isNaN(flow)) {
+        resultDiv.style.display = 'block';
+        resultDiv.textContent = 'Please enter valid numbers.';
+        return;
+    }
+
+    // Rough calculation logic for HP
+    // HP = (Flow in L/h * Depth in m) / (Constant for efficiency)
+    // This is a simplified estimation
+    let hp = (flow * depth) / 15000;
+    
+    let recommendation = "";
+    if (hp <= 0.75) recommendation = "0.75HP Well Pump";
+    else if (hp <= 1.0) recommendation = "1.0HP Solar Pump Kit";
+    else if (hp <= 1.5) recommendation = "1.5HP Solar Pump Kit";
+    else if (hp <= 2.0) recommendation = "2.0HP Solar Pump Kit";
+    else if (hp <= 3.0) recommendation = "3.0HP Solar Pump";
+    else if (hp <= 5.0) recommendation = "5.0HP Solar Pump";
+    else if (hp <= 7.5) recommendation = "7.5HP Solar Pump";
+    else recommendation = "10HP Solar Pump (Industrial)";
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `<strong>Estimated Need:</strong> ~${hp.toFixed(2)} HP<br><strong>Recommendation:</strong> ${recommendation}`;
+}
+
+// Tank Size Estimator
+function estimateTank() {
+    const people = parseInt(document.getElementById('people').value);
+    const usageType = document.getElementById('usageType').value;
+    const resultDiv = document.getElementById('tankResult');
+
+    if (isNaN(people)) {
+        resultDiv.style.display = 'block';
+        resultDiv.textContent = 'Please enter number of people.';
+        return;
+    }
+
+    let dailyUsage = people * (usageType === 'farm' ? 150 : 80); // Liters per day
+    let recommendedSize = dailyUsage * 2; // 2 days storage
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `<strong>Daily Consumption:</strong> ${dailyUsage} Liters<br><strong>Recommended Tank:</strong> ${recommendedSize}L - ${Math.ceil(recommendedSize/500)*500}L`;
+}
+
+// Form Submission Simulation
+const quoteForm = document.getElementById('quoteRequestForm');
+if (quoteForm) {
+    quoteForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const btn = quoteForm.querySelector('button');
+        const originalText = btn.textContent;
+        
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+        
+        setTimeout(() => {
+            alert('Thank you! Your inquiry has been sent successfully. Our team will contact you shortly.');
+            btn.disabled = false;
+            btn.textContent = originalText;
+            quoteForm.reset();
+        }, 1500);
+    });
+}
+
+// Newsletter Simulation
+const newsletterForm = document.querySelector('.newsletter-form');
+if (newsletterForm) {
+    newsletterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert('Thank you for subscribing to our newsletter!');
+        newsletterForm.reset();
+    });
+}
+// Modal Logic
+function openModal(name, price) {
+    document.getElementById('modalProductName').textContent = name;
+    document.getElementById('modalProductPrice').textContent = price;
+    document.getElementById('modalHiddenName').value = name;
+    document.getElementById('productModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('productModal').style.display = 'none';
+}
+
+// Close modal on outside click
+window.onclick = function(event) {
+    const modal = document.getElementById('productModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+
+const modalForm = document.getElementById('modalForm');
+if (modalForm) {
+    modalForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert('Thank you! Your inquiry for ' + document.getElementById('modalHiddenName').value + ' has been sent.');
+        closeModal();
+    });
+}
